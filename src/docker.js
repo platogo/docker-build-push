@@ -13,27 +13,9 @@ const isNotMasterBranch = ref => ref && ref.includes('refs/heads/') && ref !== '
 const createTag = () => {
   core.info('Creating Docker image tag...');
   const { sha } = context;
-  const ref = context.ref.toLowerCase();
-  const shortSha = sha.substring(0, 7);
-  let dockerTag;
 
-  if (isGitHubTag(ref)) {
-    // If GitHub tag exists, use it as the Docker tag
-    dockerTag = ref.replace('refs/tags/', '');
-  } else if (isMasterBranch(ref)) {
-    // If we're on the master branch, use dev-{GIT_SHORT_SHA} as the Docker tag
-    dockerTag = `dev-${shortSha}`;
-  } else if (isNotMasterBranch(ref)) {
-    // If we're on a non-master branch, use branch-prefix-{GIT_SHORT_SHA) as the Docker tag
-    // refs/heads/jira-123/feature/something
-    const branchName = ref.replace('refs/heads/', '');
-    const branchPrefix = branchName.includes('/') ? branchName.substring(0, branchName.indexOf('/')) : branchName;
-    dockerTag = `${branchPrefix}-${shortSha}`;
-  } else {
-    core.setFailed(
-      'Unsupported GitHub event - only supports push https://help.github.com/en/articles/events-that-trigger-workflows#push-event-push'
-    );
-  }
+  let dockerTag;
+  dockerTag = sha;
 
   core.info(`Docker tag created: ${dockerTag}`);
   return dockerTag;
